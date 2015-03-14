@@ -240,3 +240,556 @@ public class GamePlayState extends BasicTWLGameState {
 		}
 }
 
+
+
+Gamesetupstate
+package de.tu_darmstadt.gdi1.gorillas.ui.states;
+
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
+import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.Input;
+
+import de.matthiasmann.twl.slick.BasicTWLGameState;
+import de.matthiasmann.twl.slick.RootPane;
+import eea.engine.action.Action;
+import eea.engine.action.basicactions.ChangeStateAction;
+import eea.engine.action.basicactions.ChangeStateInitAction;
+import eea.engine.component.render.ImageRenderComponent;
+import eea.engine.entity.Entity;
+import eea.engine.entity.StateBasedEntityManager;
+import eea.engine.event.ANDEvent;
+import eea.engine.event.basicevents.MouseClickedEvent;
+import eea.engine.event.basicevents.MouseEnteredEvent;
+import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.Label;
+import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.EditField.Callback;
+import de.tu_darmstadt.gdi1.gorillas.main.Gorillas;
+
+
+public class GameSetupState extends BasicTWLGameState {
+
+		private int stateID;
+		private StateBasedEntityManager entityManager;
+		private Label player1Label;
+		private Label player2Label;
+		private EditField player1Input;
+		private EditField player2Input;
+		private Button startGame;
+		private Label errorPlayer1;
+		private Label errorPlayer2;
+		
+
+		
+		public GameSetupState(int sid) {
+			stateID = sid;
+			entityManager = StateBasedEntityManager.getInstance();
+		}
+
+		@Override
+		public void init(GameContainer container, StateBasedGame game)
+				throws SlickException {
+			
+			Entity background = new Entity("menu");
+			
+			background.setPosition(new Vector2f(400,300));
+			
+			background.addComponent(
+					new ImageRenderComponent(
+							new Image("/assets/gorillas/affen.png")));
+			
+			entityManager.addEntity(stateID, background);
+			
+			/* Spiel starten-Entitaet */
+			/*String startNewGame = "Spiel starten";
+			Entity startNewGameEntity = new Entity(startNewGame);
+
+			// Setze Position und Bildkomponente
+			startNewGameEntity.setPosition(new Vector2f(400, 450));
+			startNewGameEntity.setScale(0.2f);
+			startNewGameEntity.addComponent(new ImageRenderComponent(new Image(
+					"assets/gorillas/Button.png")));
+			
+			
+			entityManager.addEntity(stateID, startNewGameEntity);*/
+		
+		}
+
+		@Override
+		public void update(GameContainer container, StateBasedGame game, int delta)
+				throws SlickException {
+
+			entityManager.updateEntities(container, game, delta);
+		}
+
+		@Override
+		public void render(GameContainer container, StateBasedGame game, Graphics g)
+				throws SlickException {
+
+			entityManager.renderEntities(container, game, g);
+			
+			//g.drawString("Spiel starten", 350, 440);
+		}
+
+		@Override
+		public int getID() {
+			return stateID;
+		}
+
+		@Override
+		protected RootPane createRootPane() {
+
+			RootPane rp = super.createRootPane();
+			player1Label = new Label("Spieler 1");
+			player1Input = new EditField();
+			
+			/*player1Input.addCallback(new Callback(){
+				public void callback(int key){
+					handleEditFieldInput(key,player1Input,this,20);
+				}
+			});*/
+			
+			player2Label = new Label("Spieler 2");
+			player2Input = new EditField();
+			
+			/*player2Input.addCallback(new Callback(){
+				public void callback(int key){
+					handleEditFieldInput(key,player2Input,this,20);
+					
+				}
+			});*/
+			
+			startGame = new Button("Spiel starten");
+			startGame.addCallback(new Runnable(){
+				public void run(){
+					clearLabels();
+					if(
+					checkInputFields())
+					{
+						//Entity start = new Entity("Spiel starten");
+						//ANDEvent startGame
+					}
+					
+					
+				}
+			});
+			
+					 
+				
+			errorPlayer1 = new Label();
+			errorPlayer1.adjustSize();
+			errorPlayer1.setPosition(300, 270);
+			
+			errorPlayer2 = new Label("");
+			errorPlayer2.adjustSize();
+			errorPlayer2.setPosition(300, 370);
+			
+			
+			rp.add(player1Label);
+			rp.add(player1Input);
+			
+			rp.add(player2Label);
+			rp.add(player2Input);
+			
+			rp.add(startGame);
+			rp.add(errorPlayer1);
+			rp.add(errorPlayer2);
+	
+			
+		
+			return rp;
+		}
+
+		@Override
+		protected void layoutRootPane() {
+
+			player1Label.adjustSize();
+			player2Label.adjustSize();
+			
+			
+			player1Input.setSize(250, 50);
+			player2Input.setSize(250, 50);
+			
+			
+			
+			player1Label.setPosition(200, 200);
+			player2Label.setPosition(200, 300);
+			
+			player1Input.setPosition(300, 200);
+			player2Input.setPosition(300, 300);
+			
+			startGame.adjustSize();
+			startGame.setPosition(300, 400);	
+	
+	}
+
+		
+		/*void handleEditFieldInput(int key,EditField editField, Callback callback, int maxValue){
+			if (key == 0){
+				System.out.println("handleEditField");
+				String inputText = editField.getText();
+				
+				if(inputText.isEmpty()){
+					return;
+				}
+				
+				char inputChar = inputText.charAt(inputText.length()-1);
+				if (Character.isDigit(inputChar)
+						|| Integer.parseInt(inputText)>maxValue){
+					editField.removeCallback(callback);
+					editField.setText(inputText.substring(0, inputText.length()-1));
+					editField.addCallback(callback);
+					}
+					}
+				}*/
+			
+			
+		
+
+		
+		void inputFinished() throws SlickException{
+
+			/* Wechseln in GamePlayState
+			 * Namen links und rechts oben anzeigen
+			 * 
+			 */ 
+			/*Action startGameAction = new ChangeStateAction(Gorillas.GAMEPLAYSTATE);  
+			
+			Entity startNewGameEntity = new Entity("Spiel starten");
+		
+
+			// Erstelle das Ausloese-Event und die zugehoerige Action
+			ANDEvent mainEventsStart = new ANDEvent(new MouseEnteredEvent(),
+					new MouseClickedEvent());
+		
+			mainEventsStart.addAction(startGameAction);
+			startNewGameEntity.addComponent(mainEventsStart);
+
+			// Fuege die Entity zum StateBasedEntityManager hinzu
+			entityManager.addEntity(this.stateID, startNewGameEntity); 
+			
+			
+			// Namen links und rechts oben anzeigen
+			
+			
+		*/	
+		}
+			private void clearLabels(){
+				errorPlayer1.setText("");
+				errorPlayer2.setText("");
+			}
+		
+			private boolean checkInputFields(){
+				boolean checkOkay = true;
+				
+			if(player1Input.getText().isEmpty()){
+				showErrorMessageField1("Geben Sie bitte einen Namen ein Spieler 1!");
+				checkOkay = false; 
+				
+			}
+			if(player2Input.getText().isEmpty()){
+				showErrorMessageField2("Geben Sie bitte einen Namen ein Spieler 2!"); 
+				checkOkay = false;
+			}
+			if(player1Input.getText().equals(player2Input.getText())){
+				showErrorMessageField1("Gleicher Spielername!");
+				showErrorMessageField2("Gleicher Spielername!");
+				checkOkay = false;
+			}
+			return checkOkay;
+			}
+			
+			
+			private void showErrorMessageField1(String errorMessage){
+				errorPlayer1.setText(errorMessage);
+				
+				}
+				
+				
+				private void showErrorMessageField2(String errorMessage){
+					errorPlayer2.setText(errorMessage);
+					
+				}
+				
+			}
+
+ Mainmenustate
+ package de.tu_darmstadt.gdi1.gorillas.ui.states;
+
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.StateBasedGame;
+
+import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.Event;
+import de.matthiasmann.twl.slick.BasicTWLGameState;
+import de.matthiasmann.twl.slick.RootPane;
+import de.tu_darmstadt.gdi1.gorillas.main.Gorillas;
+import eea.engine.entity.StateBasedEntityManager;
+import eea.engine.entity.Entity;
+import org.newdawn.slick.geom.Vector2f;
+import eea.engine.component.render.ImageRenderComponent;
+import org.newdawn.slick.Image;
+import eea.engine.event.ANDEvent;
+import eea.engine.event.basicevents.KeyPressedEvent;
+import eea.engine.event.basicevents.MouseClickedEvent;
+import eea.engine.event.basicevents.MouseEnteredEvent;
+import eea.engine.action.Action;
+import eea.engine.action.basicactions.ChangeStateAction;
+import eea.engine.action.basicactions.ChangeStateInitAction;
+import eea.engine.action.basicactions.QuitAction;
+
+
+public class MainMenuState extends BasicTWLGameState {
+
+	private int stateID;
+	private StateBasedEntityManager entityManager;
+
+	/*private Button newGameButton;
+	private Button quitButton;
+	private Button highscoreButton;
+	private Button manualButton;*/
+
+	public MainMenuState(int sid) {
+		stateID = sid;
+		entityManager = StateBasedEntityManager.getInstance();
+	}
+
+	@Override
+	public void init(GameContainer container, StateBasedGame game)
+			throws SlickException {
+		Entity background = new Entity("menu");
+		
+		background.setPosition(new Vector2f(400,300));
+		
+		background.addComponent(
+				new ImageRenderComponent(
+						new Image("/assets/gorillas/affen.png")));
+		
+		entityManager.addEntity(stateID, background);
+		
+		
+		// Neues Spiel starten-EntitÃ¤t
+		String newGame = "Neues Spiel starten";
+		Entity newGameEntity = new Entity(newGame);
+
+		// Setze Position und Bildkomponente
+		newGameEntity.setPosition(new Vector2f(360, 190));
+		newGameEntity.setScale(0.2f);
+		newGameEntity.addComponent(new ImageRenderComponent(new Image(
+				"assets/gorillas/Button.png")));
+
+		// Erstelle das Ausloese-Event und die zugehoerige Action
+		ANDEvent mainEvents = new ANDEvent(new MouseEnteredEvent(),
+				new MouseClickedEvent());
+		Action newGameAction = new ChangeStateInitAction(
+				Gorillas.GAMESETUPSTATE);
+		mainEvents.addAction(newGameAction);
+		newGameEntity.addComponent(mainEvents);
+
+		// Fuege die Entity zum StateBasedEntityManager hinzu
+		entityManager.addEntity(this.stateID, newGameEntity);
+
+		/* Beenden-Entitaet */
+		String quit = "Beenden";
+		Entity quitEntity = new Entity(quit);
+		
+		// Setze Position und Bildkomponente
+				quitEntity.setPosition(new Vector2f(360, 490));
+				quitEntity.setScale(0.2f);
+				quitEntity.addComponent(new ImageRenderComponent(new Image(
+						"assets/gorillas/Button.png")));
+
+
+		// Erstelle das Ausloese-Event und die zugehoerige Action
+		ANDEvent mainEventsQ = new ANDEvent(new MouseEnteredEvent(),
+				new MouseClickedEvent());
+		Action quitAction = new QuitAction();
+		mainEventsQ.addAction(quitAction);
+		quitEntity.addComponent(mainEventsQ);
+
+		// Fuege die Entity zum StateBasedEntityManager hinzu
+		entityManager.addEntity(this.stateID, quitEntity);
+		
+		
+
+		/* Highscore-Entitaet */
+		String highscore = "Highscore";
+		Entity highscoreEntity = new Entity(highscore);
+
+		// Setze Position und Bildkomponente
+		highscoreEntity.setPosition(new Vector2f(360, 290));
+		highscoreEntity.setScale(0.2f);
+		highscoreEntity.addComponent(new ImageRenderComponent(new Image(
+				"assets/gorillas/Button.png")));
+
+		// Erstelle das Ausloese-Event und die zugehoerige Action
+		ANDEvent mainEventsHighscore = new ANDEvent(new MouseEnteredEvent(),
+				new MouseClickedEvent());
+		Action highscoreAction = new ChangeStateInitAction(
+				Gorillas.GAMESETUPSTATE); // HIGHSCORESTATE
+		mainEventsHighscore.addAction(highscoreAction);
+		highscoreEntity.addComponent(mainEventsHighscore);
+
+		// Fuege die Entity zum StateBasedEntityManager hinzu
+		entityManager.addEntity(this.stateID, highscoreEntity);
+		
+		
+		/* Anleitung-Entitaet */
+		String manual = "Anleitung";
+		Entity manualEntity = new Entity(manual);
+
+		// Setze Position und Bildkomponente
+		manualEntity.setPosition(new Vector2f(360, 390));
+		manualEntity.setScale(0.2f);
+		manualEntity.addComponent(new ImageRenderComponent(new Image(
+				"assets/gorillas/Button.png")));
+
+		// Erstelle das Ausloese-Event und die zugehoerige Action
+		ANDEvent mainEventsManual = new ANDEvent(new MouseEnteredEvent(),
+				new MouseClickedEvent());
+		Action manualAction = new ChangeStateInitAction(
+				Gorillas.GAMESETUPSTATE); // MANUALSTATE
+		mainEventsManual.addAction(manualAction);
+		manualEntity.addComponent(mainEventsManual);
+
+		// Fuege die Entity zum StateBasedEntityManager hinzu
+		entityManager.addEntity(this.stateID, manualEntity);
+		
+		
+
+
+		
+		// Durch DrÃ¼cken der n-Taste Spiel starten
+		Entity nListener = new Entity("N-Listener");
+		KeyPressedEvent nPressed = new KeyPressedEvent(Input.KEY_N);
+		nPressed.addAction(new ChangeStateAction(Gorillas.GAMESETUPSTATE));
+		nListener.addComponent(nPressed);
+		entityManager.addEntity(stateID, nListener);
+		
+		
+		
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void update(GameContainer container, StateBasedGame game, int delta)
+			throws SlickException {
+
+		entityManager.updateEntities(container, game, delta);
+	}
+
+	@Override
+	public void render(GameContainer container, StateBasedGame game, Graphics g)
+			throws SlickException {
+
+		entityManager.renderEntities(container, game, g);
+		
+		g.drawString("Neues Spiel starten", 290, 180);
+		g.drawString("Beenden", 290, 480);
+		g.drawString("Highscore", 290, 280);
+		g.drawString("Anleitung", 290, 380);
+	
+		}
+		
+	
+	@Override
+	public int getID() {
+		return stateID;
+	}
+		
+		
+
+	/*@Override
+	protected RootPane createRootPane() {
+
+		RootPane rp = super.createRootPane();
+
+		newGameButton = new Button("Neues Spiel starten");
+		newGameButton.addCallback(new Runnable() {
+			public void run() {
+				System.out.println("Taste wurde gedrÃ¼ckt");
+								
+			
+				 
+				
+	
+				
+				// TODO: Enter next state
+			}
+		});
+		quitButton = new Button("Beenden");
+		quitButton.addCallback(new Runnable() {
+			public void run() {
+				Entity quitEntity = new Entity("Beenden");
+
+				// Setze Position und Bildkomponente
+				//quitEntity.setPosition(new Vector2f(218, 290));
+				//quitEntity.setScale(0.28f);
+				quitEntity.addComponent(new ImageRenderComponent(new Image(
+						"assets/dropofwater/entry.png")));
+
+				// Erstelle das Ausloese-Event und die zugehoerige Action
+				ANDEvent mainEventsQ = new ANDEvent(new MouseEnteredEvent(),
+						new MouseClickedEvent());
+				Action quitAction = new QuitAction();
+				mainEventsQ.addAction(quitAction);
+				quitEntity.addComponent(mainEventsQ);
+
+				// Fuege die Entity zum StateBasedEntityManager hinzu
+				entityManager.addEntity(this.stateID, quitEntity);
+				
+				
+			}
+		});
+		
+		highscoreButton = new Button("Highscore");
+		highscoreButton.addCallback(new Runnable(){
+			public void run() {
+				
+			}
+		});
+		
+		manualButton = new Button("Anleitung");
+		manualButton.addCallback(new Runnable(){
+			public void run(){
+				
+			
+			}
+		});
+
+		rp.add(newGameButton);
+		rp.add(quitButton);
+		rp.add(highscoreButton);
+		rp.add(manualButton);
+		return rp;
+	}
+
+	@Override
+	protected void layoutRootPane() {
+
+		int paneHeight = this.getRootPane().getHeight();
+		int paneWidth = this.getRootPane().getWidth();
+
+		// GrÃ¶ÃŸe und Startosition der Buttons setzen
+		newGameButton.setSize(200,60);
+		newGameButton.setPosition(300, 100);
+		
+		quitButton.setSize(200,60);
+		quitButton.setPosition(300, 400);
+		
+		highscoreButton.setSize(200,60);
+		highscoreButton.setPosition(300,200);
+		
+		manualButton.setSize(200,  60);
+		manualButton.setPosition(300, 300);
+		
+	}*/
+}
+
