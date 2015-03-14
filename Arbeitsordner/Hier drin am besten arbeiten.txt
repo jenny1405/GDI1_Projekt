@@ -1,0 +1,242 @@
+package de.tu_darmstadt.gdi1.gorillas.ui.states;
+
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Vector2f;
+import org.newdawn.slick.state.StateBasedGame;
+
+import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.EditField;
+import de.matthiasmann.twl.Label;
+import de.matthiasmann.twl.slick.BasicTWLGameState;
+import de.matthiasmann.twl.slick.RootPane;
+import de.tu_darmstadt.gdi1.dropofwater.Launch;
+import de.tu_darmstadt.gdi1.gorillas.main.Gorillas;
+import eea.engine.action.Action;
+import eea.engine.action.basicactions.ChangeStateAction;
+import eea.engine.action.basicactions.ChangeStateInitAction;
+import eea.engine.component.render.ImageRenderComponent;
+import eea.engine.entity.Entity;
+import eea.engine.entity.StateBasedEntityManager;
+import eea.engine.event.ANDEvent;
+import eea.engine.event.basicevents.KeyPressedEvent;
+import eea.engine.event.basicevents.MouseClickedEvent;
+import eea.engine.event.basicevents.MouseEnteredEvent;
+import de.matthiasmann.twl.EditField.Callback;
+
+
+
+public class GamePlayState extends BasicTWLGameState {
+
+		private int stateID;
+		private StateBasedEntityManager entityManager;
+
+		private Label player1angle;
+		private Label player2angle;
+		private Label player1speed;
+		private Label player2speed;
+		private EditField player1angleInput;
+		private EditField player1speedInput;
+		private EditField player2angleInput;
+		private EditField player2speedInput;
+		private Button throwButton1;
+		private Button throwButton2;
+
+		public GamePlayState(int sid) {
+			stateID = sid;
+			entityManager = StateBasedEntityManager.getInstance();
+		}
+
+		@Override
+		public void init(GameContainer container, StateBasedGame game)
+				throws SlickException {
+			Entity background = new Entity("menu");
+			
+			background.setPosition(new Vector2f(400,300));
+			
+			background.addComponent(
+					new ImageRenderComponent(
+							new Image("/assets/gorillas/affen.png")));
+			
+			entityManager.addEntity(stateID, background);
+			
+			
+			// Bei DrÃ¼cken der Esc-Taste wechseln in das HauptmenÃ¼
+			Entity escListener = new Entity("ESC_Listener");
+			KeyPressedEvent escPressed = new KeyPressedEvent(Input.KEY_ESCAPE);
+			escPressed.addAction(new ChangeStateAction(Gorillas.MAINMENUSTATE));
+			escListener.addComponent(escPressed);
+			entityManager.addEntity(stateID, escListener);
+			
+			
+		}
+
+		@Override
+		public void update(GameContainer container, StateBasedGame game, int delta)
+				throws SlickException {
+
+			entityManager.updateEntities(container, game, delta);
+		}
+
+		@Override
+		public void render(GameContainer container, StateBasedGame game, Graphics g)
+				throws SlickException {
+
+			entityManager.renderEntities(container, game, g);
+					
+		}
+
+		@Override
+		public int getID() {
+			return stateID;
+		}
+			
+			
+
+		@Override
+		protected RootPane createRootPane() {
+
+			RootPane rp = super.createRootPane();
+			player1angle = new Label("Winkel");
+			player1speed = new Label("Geschwindigkeit");
+			
+			player1angleInput = new EditField();
+			player1speedInput = new EditField();
+			
+			player1angleInput.addCallback(new Callback(){
+				public void callback(int key){
+					handleEditFieldInput(key,player1angleInput,this,360);
+				}
+				});
+					
+			player1speedInput.addCallback(new Callback(){
+				public void callback(int key){
+					handleEditFieldInput(key,player1speedInput,this,200);
+				}
+			});
+			
+			
+			player2angle = new Label("Winkel");
+			player2speed = new Label("Geschwindigkeit");
+			
+			player2angleInput = new EditField();
+			player2speedInput = new EditField();
+			
+			
+			player2angleInput.addCallback(new Callback(){
+				public void callback(int key){
+					handleEditFieldInput(key,player2angleInput,this,360);
+				}
+				});
+					
+			player2speedInput.addCallback(new Callback(){
+				public void callback(int key){
+					handleEditFieldInput(key,player2speedInput,this,200);
+			
+			
+				
+		}
+});
+			
+			
+			throwButton1 = new Button("Werfen");
+			throwButton1.addCallback(new Runnable(){
+				public void run(){
+					inputFinished();
+				}
+			});
+			
+			
+			throwButton2 = new Button("Werfen");
+			throwButton2.addCallback(new Runnable(){
+				public void run(){
+					inputFinished();
+				}
+			});
+
+			
+			
+			rp.add(player1angle);
+			rp.add(player1angleInput);
+			
+			rp.add(player1speed);
+			rp.add(player1speedInput);
+			
+			rp.add(player2angle);
+			rp.add(player2angleInput);
+			
+			rp.add(player2speed);
+			rp.add(player2speedInput);
+			
+			rp.add(throwButton1);
+			rp.add(throwButton2);
+			
+			return rp;
+			
+			
+		
+		}
+
+		@Override
+		protected void layoutRootPane() {
+
+			int paneHeight = this.getRootPane().getHeight();
+			int paneWidth = this.getRootPane().getWidth();
+			
+			
+			// GrÃ¶ÃŸe der Labels automatisch setzen
+			player1speed.adjustSize();
+			player2speed.adjustSize();
+			player1angle.adjustSize();
+			player2angle.adjustSize();
+			
+			
+			
+			// GrÃ¶ÃŸe der Input-Felder manuell setzen
+			player1speedInput.setSize(50,20);
+			player2speedInput.setSize(50,20);
+			player1angleInput.setSize(50,20);
+			player2angleInput.setSize(50,20);
+			
+			
+			//Position der Labels setzen
+			player1speed.setPosition(20,20);
+			player2speed.setPosition(500,20);
+			player1angle.setPosition(20,40);
+			player2angle.setPosition(500,40);
+			
+			//Position der Input-Felder setzen
+			player1speedInput.setPosition(50,20);
+			player2speedInput.setPosition(550,20);
+			player1angleInput.setPosition(50,40);
+			player2angleInput.setPosition(550,40);
+			
+			//Position der Wurf-Buttons setzen
+			throwButton1.setPosition(50,50);
+			throwButton2.setPosition(550,50);
+			
+			
+			
+		}
+		
+		
+		void handleEditFieldInput(int key, EditField editField, Callback callback, int maxValue){
+			if(key==0){
+				String inputText = editField.getText();
+				
+				if (inputText.isEmpty()){
+				return;
+			}
+			
+		}
+			
+	}
+		
+		void inputFinished(){
+			
+		}
+}
+
